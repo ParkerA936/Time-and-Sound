@@ -51,7 +51,7 @@ namespace Time_and_Sound
             TimeFont = Content.Load<SpriteFont>("TimeFont");
             explosion = Content.Load<SoundEffect>("explosion");
             pliersTexture = Content.Load<Texture2D>("pliers");
-        }
+        }//dfghviure
 
         protected override void Update(GameTime gameTime)
         {
