@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Threading.Channels;
 
 namespace Time_and_Sound
 {
@@ -11,19 +12,21 @@ namespace Time_and_Sound
         private SpriteBatch _spriteBatch;
 
         MouseState mouseState;
-        Texture2D bombTexture, pliersTexture;
-        Rectangle window, rectBomb, resetRect, pliersRect;
+        Texture2D bombTexture, pliersTexture, explodesTexture, winTexture;
+        Rectangle window, rectBomb, resetRect, pliersRect, explodesRect, wiresRect, winRect;
         SpriteFont TimeFont;
         SoundEffect explosion;
+        SoundEffectInstance explosionInstance;
         float seconds;
-        bool exploded;
+        bool exploded, safe;
 
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             this.Window.Title = "Lesson 4 - Sound and Time";
-            IsMouseVisible = true;
+            IsMouseVisible = false;
+            
         }
 
         protected override void Initialize()
@@ -38,7 +41,11 @@ namespace Time_and_Sound
             resetRect = new Rectangle(253, 132,10 ,16 );
             seconds = 0f;
             exploded = false;
-            pliersRect = new Rectangle(0, 0, 0,0);
+            safe = false;
+            explodesRect = new Rectangle(-400,-250,1600,1000); 
+            pliersRect = new Rectangle(0, 0, 35,35);
+            wiresRect = new Rectangle(492,164,260,60);
+            winRect = new Rectangle(0, 0, 800, 500);
             base.Initialize();
         }
 
@@ -50,27 +57,41 @@ namespace Time_and_Sound
             bombTexture = Content.Load<Texture2D>("bomb");
             TimeFont = Content.Load<SpriteFont>("TimeFont");
             explosion = Content.Load<SoundEffect>("explosion");
+            explosionInstance = explosion.CreateInstance();
             pliersTexture = Content.Load<Texture2D>("pliers");
-        }//dfghviure
+            explodesTexture = Content.Load<Texture2D>("Exploded");
+            winTexture = Content.Load<Texture2D>("You WIn");
+        }
 
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             mouseState = Mouse.GetState();
+            pliersRect.Location = mouseState.Position;
             this.Window.Title = mouseState.Position.ToString();
             if (mouseState.LeftButton == ButtonState.Pressed && resetRect.Contains(mouseState.Position))
                 seconds = 0f;
+            if (mouseState.LeftButton == ButtonState.Pressed && wiresRect.Contains(mouseState.Position))
+            { seconds = 0f; safe = true; }
+            if (safe && seconds >9)
+            {
+                Exit();
+            }
             // TODO: Add your update logic here
             if (!exploded)
             seconds += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (seconds > 10)
+            if (seconds > 10 && !exploded)
             {
                 exploded = true;
-                seconds = 0;
-                explosion.Play();
+                //seconds = 0;
+                explosionInstance.Play();
             }
-
+            if (exploded)
+            {
+                if (explosionInstance.State == SoundState.Stopped)
+                {/* Exit();*/ }
+            }
             base.Update(gameTime);
         }
 
@@ -81,9 +102,16 @@ namespace Time_and_Sound
             _spriteBatch.Begin();
 
             _spriteBatch.Draw(bombTexture, rectBomb, Color.White);
-             _spriteBatch.DrawString(TimeFont, seconds.ToString("00.0"), new Vector2(270,200 ), Color.Black); 
-
-
+             _spriteBatch.DrawString(TimeFont, seconds.ToString("00.0"), new Vector2(270,200 ), Color.Black);
+            if (exploded)
+            {
+                _spriteBatch.Draw(explodesTexture, explodesRect, Color.White);
+            }
+            _spriteBatch.Draw(pliersTexture, pliersRect, Color.White);
+            if (safe)
+            {
+                _spriteBatch.Draw(winTexture, winRect, Color.White);
+            }
             _spriteBatch.End();
             // TODO: Add your drawing code here
 
