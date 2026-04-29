@@ -42,9 +42,9 @@ namespace Time_and_Sound
             seconds = 0f;
             exploded = false;
             safe = false;
-            explodesRect = new Rectangle(-400,-250,1600,1000); 
+            explodesRect = new Rectangle(-800,-500,2400,1500); 
             pliersRect = new Rectangle(0, 0, 35,35);
-            wiresRect = new Rectangle(492,164,260,60);
+            wiresRect = new Rectangle(597,163,90,60);
             winRect = new Rectangle(0, 0, 800, 500);
             base.Initialize();
         }
@@ -102,13 +102,15 @@ namespace Time_and_Sound
             _spriteBatch.Begin();
 
             _spriteBatch.Draw(bombTexture, rectBomb, Color.White);
+           
              _spriteBatch.DrawString(TimeFont, seconds.ToString("00.0"), new Vector2(270,200 ), Color.Black);
+            _spriteBatch.DrawString(TimeFont, ("!Cut Both Wires! "), new Vector2 (80,20), Color.Black);
             if (exploded)
             {
                 _spriteBatch.Draw(explodesTexture, explodesRect, Color.White);
             }
             _spriteBatch.Draw(pliersTexture, pliersRect, Color.White);
-            if (safe)
+            if (safe && !exploded)
             {
                 _spriteBatch.Draw(winTexture, winRect, Color.White);
             }
